@@ -79,4 +79,52 @@ router.delete('/delete/:id', async (req, res) => {
     }
 });
 
+router.put('/addFriend/:userId/:friendId', async (req, res) => {
+    try {
+        const { userId, friendId } = req.params;
+
+        // Add a friend to the user's friend list
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId },
+            { $addToSet: { friends: friendId } },
+            { new: true, runValidators: true }
+        );
+
+        // Check if the user was found and updated
+        if (!updatedUser) {
+            return res.status(404).json({ message: "No user with this id" });
+        }
+
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+
+
+
+router.put('/deletefriend/:userId/:friendId', async (req, res) => {
+    try {
+        const { userId, friendId } = req.params;
+
+        // Remove a friend from the user's friend list
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId },
+            { $pull: { friends: friendId } },
+            { new: true }
+        );
+
+        // Check if the user was found and updated
+        if (!updatedUser) {
+            return res.status(404).json({ message: "No user with this id" });
+        }
+
+        res.json(updatedUser);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+
 module.exports = router;
