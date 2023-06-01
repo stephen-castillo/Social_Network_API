@@ -1,78 +1,68 @@
 const { Schema, model } = require('mongoose');
 
+// A function to format date
+function formatDate(date) {
+    let day = date.getDate();
+    let month = date.getMonth() + 1;
+    let year = date.getFullYear();
+  
+    return month + '/' + day + '/' + year;
+}
+
+// Schema to create reaction embedded document
+const reactionSchema = new Schema(
+    {
+        reactionId: {
+            type: Schema.Types.ObjectId,
+            unique: true
+        },
+        
+        reactionBody: {
+            type: String,
+            required: true,
+            maxlength: 280,
+        },
+
+        username: {
+            type: String,
+            required: true,
+        },
+
+        createdAt: {
+            type: Date,
+            default: Date.now,
+            get: formatDate // Use the formatDate function as a getter 
+        }
+       
+    }
+);
+
 // Schema to create Thought model
 const thoughtSchema = new Schema(
-  {
-    thoughtText: {
-      type: String,
-      required: true,
-      minlenght: 1,
-      maxlength: 280,
+    {
+        thoughtText: {
+            type: String,
+            required: true,
+            minlenght: 1,
+            maxlength: 280,
+        },
+        createdAt: {
+            type: Date,
+            default: Date.now,
+        },
+        username: {
+            type: String,
+            required: true,
+        },
+        reactions: [reactionSchema],
     },
-    createdAt: {
-      type: Date,
-      default: Date.now,
-    },
-    username: {
-        type: String,
-        required: true,
-    },
-    //reactions: [{ type: Schema.Types.ObjectId, ref: 'Reaction' }],
-  },
-  {
-    toJSON: {
-      getters: true,
-    },
-  }
-);
+    {
+        toJSON: {
+        getters: true,
+        },
+    }
+    );
 
 const Thought = model('Thought', thoughtSchema);
 
 module.exports = Thought;
-/* Thought:
-
-thoughtText
-
-String
-Required
-Must be between 1 and 280 characters
-createdAt
-
-Date
-Set default value to the current timestamp
-Use a getter method to format the timestamp on query
-username (The user that created this thought)
-
-String
-Required
-reactions (These are like replies)
-
-Array of nested documents created with the reactionSchema
-Schema Settings:
-
-Create a virtual called reactionCount that retrieves the length of the thought's reactions array field on query. */
-
-
-/* Reaction (SCHEMA ONLY)
-
-reactionId
-
-Use Mongoose's ObjectId data type
-Default value is set to a new ObjectId
-reactionBody
-
-String
-Required
-280 character maximum
-username
-
-String
-Required
-createdAt
-
-Date
-Set default value to the current timestamp
-Use a getter method to format the timestamp on query
-Schema Settings:
-
-This will not be a model, but rather will be used as the reaction field's subdocument schema in the Thought model. */
