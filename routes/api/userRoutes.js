@@ -19,7 +19,13 @@ router.post('/create', async (req, res) => {
 router.get('/', async (req, res) => {
     //console.log('Here for get');
     try {
-        const userList = await User.find();
+        const userList = await User.find({})
+        .populate({
+            path: "friends",
+            select: "-__v",
+        })
+        .select("-__v")
+        .sort({ _id: -1 });
         //console.log(userList);
         // Send the userlist information back to the client
         res.json(userList);
@@ -33,7 +39,16 @@ router.get('/find/:id', async (req, res) => {
     //console.log('Here for get');
     try {
         const { id } = req.params;
-        const singleUser = await User.findById(id);
+        const singleUser = await User.findById({_id: id})
+        .populate({
+            path: "thoughts",
+            select: "-__v",
+        })
+        .populate({
+        path: "friends",
+        select: "-__v",
+        })
+        .select("-__v");
         //console.log(singleUser);
         // Send the user's information back to the client
         res.json(singleUser);

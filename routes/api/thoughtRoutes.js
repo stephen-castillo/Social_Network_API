@@ -27,7 +27,14 @@ router.post('/create', async (req, res) => {
 
 router.get('/', async (req, res) => {
     try {
-        const thoughts = await Thought.find();
+        const thoughts = await Thought.find()
+        .populate({
+            path: "reactions",
+            select: "-__v",
+        })
+        .select("-__v")
+        .sort({ _id: -1 });
+
         res.json(thoughts);
     } catch (err) {
         res.status(500).send(err);
@@ -36,7 +43,13 @@ router.get('/', async (req, res) => {
 
 router.get('/:id', async (req, res) => {
     try {
-        const thought = await Thought.findById(req.params.id);
+        const { id } = req.params;
+        const thought = await Thought.findById({_id: id})
+        .populate({
+            path: "reactions",
+            select: "-__v",
+        })
+        .select("-__v");
         res.json(thought);
     } catch (err) {
         res.status(500).send(err);
