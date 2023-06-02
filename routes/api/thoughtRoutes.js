@@ -74,5 +74,48 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+router.put('/addReaction/:thoughtId', async (req, res) => {
+    try {
+        const { thoughtId } = req.params;
+
+        // Add a friend to the user's friend list
+        const updatedReaction = await Thought.findOneAndUpdate(
+            { _id: thoughtId },
+            { $addToSet: { reactions: req.body } },
+            { new: true, runValidators: true }
+        );
+
+        // Check if the user was found and updated
+        if (!updatedReaction) {
+            return res.status(404).json({ message: "No thought with this id" });
+        }
+
+        res.json(updatedReaction);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
+
+router.put('/deleteReaction/:thoughtId/:reactionId', async (req, res) => {
+    try {
+        const { thoughtId, reactionId } = req.params;
+
+        // Remove a friend from the user's friend list
+        const updatedReaction = await Thought.findOneAndUpdate(
+            { _id: thoughtId },
+            { $pull: { reactions: reactionId } },
+            { new: true, runValidators: true }
+        );
+
+        // Check if the user was found and updated
+        if (!updatedReaction) {
+            return res.status(404).json({ message: "No reaction with this id" });
+        }
+
+        res.json(updatedReaction);
+    } catch (err) {
+        res.status(500).json(err);
+    }
+});
 
 module.exports = router;
